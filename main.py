@@ -25,17 +25,7 @@ def display_message(message, sender):
         lmargin1 = 50  # Padding on the right side
         rmargin = 30  # Padding on the left side
         bg=None
-
-        # # Load the user icon image
-        # if not hasattr(chat_log, 'user_icon'):
-        #     chat_log.user_icon = PhotoImage(file="user.png")
-        # chat_log.window_create(tk.END, window=tk.Label(chat_log, image=chat_log.user_icon, bg=bg))
         
-        # user_icon = Image.open("user.png")
-        # user_icon = user_icon.resize((30, 30))  # Resize the image to desired dimensions
-        # user_icon = ImageTk.PhotoImage(user_icon)
-        # chat_log.image_create(tk.END, image=user_icon)
-        # chat_log.image = user_icon  # Store a reference to prevent garbage collection
     else:
         tag = "bot_tag"
         color = "green"
