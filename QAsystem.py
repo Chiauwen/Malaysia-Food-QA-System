@@ -9,6 +9,8 @@ from haystack.nodes import BM25Retriever
 from haystack.nodes import FARMReader
 from pprint import pprint
 from haystack.utils import print_answers
+from googletrans import Translator
+from langid.langid import LanguageIdentifier, model
 
 # Get the host where Elasticsearch is running, default to localhost
 host = os.environ.get("ELASTICSEARCH_HOST", "localhost")
@@ -46,13 +48,39 @@ indexing_pipeline.run_batch(file_paths=files_to_index)
 
 retriever = BM25Retriever(document_store=document_store)
 
-reader = FARMReader(model_name_or_path="C:/Users/User/Documents/Study/Degree/Year 3/Sem 1/Natural Language Processing/project/my_model", use_gpu=True)
+reader = FARMReader(model_name_or_path="C:/Users/User/Documents/Study/Degree/Year 3/Sem 1/Natural Language Processing/project/my_model2", use_gpu=True)
 querying_pipeline = Pipeline()
 querying_pipeline.add_node(component=retriever, name="Retriever", inputs=["Query"])
 querying_pipeline.add_node(component=reader, name="Reader", inputs=["Retriever"])
 
+def translateQues(question):
+    identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)
+    language, confidence = identifier.classify(question)
+    
+    if language=="en":
+        translator = Translator(service_urls=['translate.google.com'])
+
+        translated_text = translator.translate(question, src='en', dest='ms').text
+        return translated_text, language
+    
+    else:
+        language=None
+        return question, language
+
+def translateAns(answer):
+    identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)
+    language, confidence = identifier.classify(answer)
+    
+    translator = Translator(service_urls=['translate.google.com'])
+
+    translated_answer = translator.translate(answer, src='ms', dest='en').text
+
+    return translated_answer
+    
 
 def QAsystem(question):
+    
+    question, language = translateQues(question)
     
     prediction = querying_pipeline.run(
         query=question,
@@ -63,6 +91,9 @@ def QAsystem(question):
     )
     
     answer = prediction['answers'][0].answer
-    print(answer)
+    
+    if language=="en":
+        answer = translateAns(answer)
     
     return answer
+        
